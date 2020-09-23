@@ -126,7 +126,7 @@ public class AddPhysicalEdge extends JDialog {
 		});
 
 		inputPanel.add(sourceNode);
-		inputPanel.add(new Label("    ¡ª"));
+		inputPanel.add(new Label("label"));
 		inputPanel.add(targetNode);
 		inputPanel.add(Box.createHorizontalGlue());
 		inputPanelWrapper.add(inputPanel);

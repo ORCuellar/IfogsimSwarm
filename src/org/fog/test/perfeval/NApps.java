@@ -173,7 +173,7 @@ public class NApps {
 			
 
 			
-			controller.printresults();
+			/*controller.printresults();*/
 			/*Public methor in class controller that executes
 			 * printTimeDetails()
 			 * printPowerDetails()

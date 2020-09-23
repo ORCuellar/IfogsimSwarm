@@ -1,31 +1,31 @@
 /*
-* Copyright 2018 Carlos Guerrero, Isaac Lera.
-* 
-* Created on Nov 09 08:10:55 2018
-* @authors:
-*     Carlos Guerrero
-*     carlos ( dot ) guerrero  uib ( dot ) es
-*     Isaac Lera
-*     isaac ( dot ) lera  uib ( dot ) es
-* 
-* 
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-* 
-* 
-* This extension has been implemented for the research presented in the 
-* article "A lightweight decentralized service placement policy for 
-* performance optimization in fog computing", accepted for publication 
-* in "Journal of Ambient Intelligence and Humanized Computing".
-*/
+ * Copyright 2018 Carlos Guerrero, Isaac Lera.
+ *
+ * Created on Nov 09 08:10:55 2018
+ * @authors:
+ *     Carlos Guerrero
+ *     carlos ( dot ) guerrero  uib ( dot ) es
+ *     Isaac Lera
+ *     isaac ( dot ) lera  uib ( dot ) es
+ *
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * This extension has been implemented for the research presented in the
+ * article "A lightweight decentralized service placement policy for
+ * performance optimization in fog computing", accepted for publication
+ * in "Journal of Ambient Intelligence and Humanized Computing".
+ */
 
 package org.fog.test.perfeval;
 
@@ -69,19 +69,32 @@ import org.fog.utils.distribution.DeterministicDistribution;
  * @author Harshit Gupta
  *
  */
-public class NAppDCNS {
+public class 	NAppDCNS {
 	static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
 	static List<FogDevice> cameras = new ArrayList<FogDevice>();
 	static List<Sensor> sensors = new ArrayList<Sensor>();
 	static List<Actuator> actuators = new ArrayList<Actuator>();
-	
+
 	static int numOfAreas = 1;
 	static int numOfCamerasPerArea = 4;
 	static double EEG_TRANSMISSION_TIME = 5.1;
 	static int numOfApps = 4;
 	private static boolean CLOUD = false;
 	//static double EEG_TRANSMISSION_TIME = 10;
-	
+
+
+	static Integer numOfNetChildren = 3;
+	static int numOfUsersPerRouter = 1;
+	static int numOfNetworkLevels = 3;
+
+	static int numOfRepeatedSubApps = 5;
+	static String placementPolicy = "ModulePlacementEdgewards";
+	static int finishTime = 3500;
+
+	static Integer[] subAppsRate={30,10,25,30,20,30,10,25,35,20};
+	static String FileNameResults = "a"+numOfRepeatedSubApps+"l"+numOfNetworkLevels+"u"+numOfUsersPerRouter+"c"+numOfNetChildren;
+
+
 	public static void main(String[] args) {
 
 		Log.printLine("Starting TwoApps...");
@@ -93,30 +106,30 @@ public class NAppDCNS {
 			boolean trace_flag = false; // mean trace events
 
 			CloudSim.init(num_user, calendar, trace_flag);
-			
-			
+
+
 			String[] appId = new String[numOfApps];
 			FogBroker[] broker = new FogBroker[numOfApps];
 			Application[] application = new Application[numOfApps];
 			ModuleMapping[] moduleMapping = new ModuleMapping[numOfApps];
-			
-			
+
+
 			createFogDevices();
-			
+
 			int currentApp=0;
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				appId[currentApp] = "dcns_"+currentApp;
 			}
 			//OK
 
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				broker[currentApp] = new FogBroker("broker_"+currentApp);
 			}
 			//OK
 
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				application[currentApp] = createApplication(appId[currentApp], broker[currentApp].getId());
 			}
@@ -127,30 +140,30 @@ public class NAppDCNS {
 			}
 			//OK
 
-			
-			
+
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				createEdgeDevices(broker[currentApp].getId(), appId[currentApp]);
 			}
 			//OK
 
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				moduleMapping[currentApp] = ModuleMapping.createModuleMapping();
 			}
 			//OK
 
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
 				moduleMapping[currentApp].addModuleToDevice("user_interface"+appId[currentApp], "cloud");
 				if(CLOUD){
 					// if the mode of deployment is cloud-based
 					moduleMapping[currentApp].addModuleToDevice("object_detector"+appId[currentApp], "cloud"); // placing all instances of Object Detector module in the Cloud
 					moduleMapping[currentApp].addModuleToDevice("object_tracker"+appId[currentApp], "cloud"); // placing all instances of Object Tracker module in the Cloud
-				}				
+				}
 			}
 			//OK
-			
+
 			for(FogDevice device : fogDevices){
 				if(device.getName().startsWith("m")){
 					for (currentApp=0;currentApp<numOfApps;currentApp++) {
@@ -159,16 +172,16 @@ public class NAppDCNS {
 				}
 			}
 			//OK
-			
-			Controller controller = new Controller("master-controller", fogDevices, sensors, 
+
+			Controller controller = new Controller("master-controller", fogDevices, sensors,
 					actuators);
-			
+
 			for (currentApp=0;currentApp<numOfApps;currentApp++) {
-				controller.submitApplication(application[currentApp], 
+				controller.submitApplication(application[currentApp],
 						(CLOUD)?(new ModulePlacementMapping(fogDevices, application[currentApp], moduleMapping[currentApp]))
-								:(new ModulePlacementEdgewards(fogDevices, sensors, actuators, application[currentApp], moduleMapping[currentApp])));				
+								:(new ModulePlacementEdgewards(fogDevices, sensors, actuators, application[currentApp], moduleMapping[currentApp],subAppsRate,FileNameResults)));
 			}
-			
+
 
 			TimeKeeper.getInstance().setSimulationStartTime(Calendar.getInstance().getTimeInMillis());
 
@@ -204,7 +217,7 @@ public class NAppDCNS {
 //			display.setLatency(1.0);  // latency of connection between Display actuator and the parent Smartphone is 1 ms			
 		}
 	}
-	
+
 //	private static void createEdgeDevices1(int userId, String appId) {
 //		for(FogDevice mobile : mobiles){
 //			String id = mobile.getName();
@@ -269,9 +282,9 @@ public class NAppDCNS {
 //		display.setLatency(1.0);  // latency of connection between Display actuator and the parent Smartphone is 1 ms
 //*/		return mobile;
 //	}
-	
-	
-	
+
+
+
 	/**
 	 * Creates the fog devices in the physical topology of the simulation.
 	 * @param userId
@@ -303,7 +316,7 @@ public class NAppDCNS {
 		router.setParentId(parentId);
 		return router;
 	}
-	
+
 	private static FogDevice addCamera(String id, int parentId){
 		FogDevice camera = createFogDevice("m-"+id, 500, 1000, 10000, 10000, 3, 0, 87.53, 82.44);
 		camera.setParentId(parentId);
@@ -318,9 +331,9 @@ public class NAppDCNS {
 		ptz.setLatency(1.0);  // latency of connection between PTZ Control and the parent Smart Camera is 1 ms
 */		return camera;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Creates a vanilla fog device
 	 * @param nodeName name of the device to be used in simulation
@@ -335,8 +348,8 @@ public class NAppDCNS {
 	 * @return
 	 */
 	private static FogDevice createFogDevice(String nodeName, long mips,
-			int ram, long upBw, long downBw, int level, double ratePerMips, double busyPower, double idlePower) {
-		
+											 int ram, long upBw, long downBw, int level, double ratePerMips, double busyPower, double idlePower) {
+
 		List<Pe> peList = new ArrayList<Pe>();
 
 		// 3. Create PEs and add these into a list.
@@ -354,7 +367,7 @@ public class NAppDCNS {
 				peList,
 				new StreamOperatorScheduler(peList),
 				new FogLinearPowerModel(busyPower, idlePower)
-			);
+		);
 
 		List<Host> hostList = new ArrayList<Host>();
 		hostList.add(host);
@@ -366,10 +379,10 @@ public class NAppDCNS {
 		double cost = 3.0; // the cost of using processing in this resource
 		double costPerMem = 0.05; // the cost of using memory in this resource
 		double costPerStorage = 0.001; // the cost of using storage in this
-										// resource
+		// resource
 		double costPerBw = 0.0; // the cost of using bw in this resource
 		LinkedList<Storage> storageList = new LinkedList<Storage>(); // we are not adding SAN
-													// devices by now
+		// devices by now
 
 		FogDeviceCharacteristics characteristics = new FogDeviceCharacteristics(
 				arch, os, vmm, host, time_zone, cost, costPerMem,
@@ -377,12 +390,12 @@ public class NAppDCNS {
 
 		FogDevice fogdevice = null;
 		try {
-			fogdevice = new FogDevice(nodeName, characteristics, 
+			fogdevice = new FogDevice(nodeName, characteristics,
 					new AppModuleAllocationPolicy(hostList), storageList, 10, upBw, downBw, 0, ratePerMips);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		fogdevice.setLevel(level);
 		return fogdevice;
 	}
@@ -437,10 +450,10 @@ public class NAppDCNS {
 //		
 //		return application;
 //	}
-	
+
 	@SuppressWarnings({"serial" })
 	private static Application createApplication(String appId, int userId){
-		
+
 		Application application = Application.createApplication(appId, userId);
 		/*
 		 * Adding modules (vertices) to the application model (directed graph)
@@ -449,7 +462,7 @@ public class NAppDCNS {
 		application.addAppModule("motion_detector"+appId, 10);
 		application.addAppModule("object_tracker"+appId, 10);
 		application.addAppModule("user_interface"+appId, 10);
-		
+
 		/*
 		 * Connecting the application modules (vertices) in the application model (directed graph) with edges
 		 */
@@ -458,16 +471,16 @@ public class NAppDCNS {
 		application.addAppEdge("object_detector"+appId, "user_interface"+appId, 500, 2000, "DETECTED_OBJECT"+appId, Tuple.UP, AppEdge.MODULE); // adding edge from Object Detector to User Interface module carrying tuples of type DETECTED_OBJECT
 		application.addAppEdge("object_detector"+appId, "object_tracker"+appId, 1000, 100, "OBJECT_LOCATION"+appId, Tuple.UP, AppEdge.MODULE); // adding edge from Object Detector to Object Tracker module carrying tuples of type OBJECT_LOCATION
 		application.addAppEdge("object_tracker"+appId, "PTZ_CONTROL"+appId, 100, 28, 100, "PTZ_PARAMS"+appId, Tuple.DOWN, AppEdge.ACTUATOR); // adding edge from Object Tracker to PTZ CONTROL (actuator) carrying tuples of type PTZ_PARAMS
-		
+
 		/*
-		 * Defining the input-output relationships (represented by selectivity) of the application modules. 
+		 * Defining the input-output relationships (represented by selectivity) of the application modules.
 		 */
 		application.addTupleMapping("motion_detector"+appId, "CAMERA"+appId, "MOTION_VIDEO_STREAM"+appId, new FractionalSelectivity(1.0)); // 1.0 tuples of type MOTION_VIDEO_STREAM are emitted by Motion Detector module per incoming tuple of type CAMERA
 		application.addTupleMapping("object_detector"+appId, "MOTION_VIDEO_STREAM"+appId, "OBJECT_LOCATION"+appId, new FractionalSelectivity(1.0)); // 1.0 tuples of type OBJECT_LOCATION are emitted by Object Detector module per incoming tuple of type MOTION_VIDEO_STREAM
 		application.addTupleMapping("object_detector"+appId, "MOTION_VIDEO_STREAM"+appId, "DETECTED_OBJECT"+appId, new FractionalSelectivity(0.05)); // 0.05 tuples of type MOTION_VIDEO_STREAM are emitted by Object Detector module per incoming tuple of type MOTION_VIDEO_STREAM
-	
+
 		/*
-		 * Defining application loops (maybe incomplete loops) to monitor the latency of. 
+		 * Defining application loops (maybe incomplete loops) to monitor the latency of.
 		 * Here, we add two loops for monitoring : Motion Detector -> Object Detector -> Object Tracker and Object Tracker -> PTZ Control
 		 */
 //		final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("motion_detector");add("object_detector");add("object_tracker");}});
@@ -475,14 +488,14 @@ public class NAppDCNS {
 		final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("motion_detector"+appId);add("object_detector"+appId);add("object_tracker"+appId);}});
 		final AppLoop loop2 = new AppLoop(new ArrayList<String>(){{add("object_tracker"+appId);add("PTZ_CONTROL"+appId);}});
 		List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);add(loop2);}};
-		
+
 		application.setLoops(loops);
 		return application;
 	}
 
-	
-	
-	
+
+
+
 //	@SuppressWarnings({"serial" })
 //	private static Application createApplication1(String appId, int userId){
 //		

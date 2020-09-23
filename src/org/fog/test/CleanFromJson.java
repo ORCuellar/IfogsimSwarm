@@ -25,6 +25,18 @@ import org.fog.utils.JsonToTopology;
  */
 public class CleanFromJson {
 
+	static Integer numOfNetChildren = 3;
+	static int numOfUsersPerRouter = 1;
+	static int numOfNetworkLevels = 3;
+
+	static int numOfRepeatedSubApps = 5;
+	static String placementPolicy = "ModulePlacementEdgewards";
+	static int finishTime = 3500;
+
+	static Integer[] subAppsRate={30,10,25,30,20,30,10,25,35,20};
+	static String FileNameResults = "a"+numOfRepeatedSubApps+"l"+numOfNetworkLevels+"u"+numOfUsersPerRouter+"c"+numOfNetChildren;
+
+
 	public static void main(String[] args) {
 
 		Log.printLine("Starting VRGame...");
@@ -38,24 +50,24 @@ public class CleanFromJson {
 			CloudSim.init(num_user, calendar, trace_flag);
 
 			String appId = "vr_game";
-			
+
 			FogBroker broker = new FogBroker("broker");
-			
+
 			Application application = createApplication(appId, broker.getId());
 			application.setUserId(broker.getId());
-			
+
 			/*
 			 * Creating the physical topology from specified JSON file
 			 */
 			PhysicalTopology physicalTopology = JsonToTopology.getPhysicalTopology(broker.getId(), appId, "topologies/routerTopology");
-						
-			Controller controller = new Controller("master-controller", physicalTopology.getFogDevices(), physicalTopology.getSensors(), 
+
+			Controller controller = new Controller("master-controller", physicalTopology.getFogDevices(), physicalTopology.getSensors(),
 					physicalTopology.getActuators());
-			
-			controller.submitApplication(application, 0, new ModulePlacementEdgewards(physicalTopology.getFogDevices(), 
-					physicalTopology.getSensors(), physicalTopology.getActuators(), 
-					application, ModuleMapping.createModuleMapping()));
-			
+
+			controller.submitApplication(application, 0, new ModulePlacementEdgewards(physicalTopology.getFogDevices(),
+					physicalTopology.getSensors(), physicalTopology.getActuators(),
+					application, ModuleMapping.createModuleMapping(),subAppsRate,FileNameResults));
+
 			CloudSim.startSimulation();
 
 			CloudSim.stopSimulation();
@@ -66,36 +78,36 @@ public class CleanFromJson {
 			Log.printLine("Unwanted errors happen");
 		}
 	}
-	
-	
+
+
 	@SuppressWarnings({ "serial" })
 	private static Application createApplication(String appId, int userId){
-		
+
 		Application application = Application.createApplication(appId, userId);
 		application.addAppModule("client", 10);
 		application.addAppModule("classifier", 10);
 		application.addAppModule("tuner", 10);
-		
+
 		application.addTupleMapping("client", "TEMP", "_SENSOR", new FractionalSelectivity(1.0));
 		application.addTupleMapping("client", "CLASSIFICATION", "ACTUATOR", new FractionalSelectivity(1.0));
 		application.addTupleMapping("classifier", "_SENSOR", "CLASSIFICATION", new FractionalSelectivity(1.0));
 		application.addTupleMapping("classifier", "_SENSOR", "HISTORY", new FractionalSelectivity(0.1));
 		application.addTupleMapping("tuner", "HISTORY", "TUNING_PARAMS", new FractionalSelectivity(1.0));
-	
+
 		application.addAppEdge("TEMP", "client", 1000, 100, "TEMP", Tuple.UP, AppEdge.SENSOR);
 		application.addAppEdge("client", "classifier", 8000, 100, "_SENSOR", Tuple.UP, AppEdge.MODULE);
 		application.addAppEdge("classifier", "tuner", 1000000, 100, "HISTORY", Tuple.UP, AppEdge.MODULE);
 		application.addAppEdge("classifier", "client", 1000, 100, "CLASSIFICATION", Tuple.DOWN, AppEdge.MODULE);
 		application.addAppEdge("tuner", "classifier", 1000, 100, "TUNING_PARAMS", Tuple.DOWN, AppEdge.MODULE);
 		application.addAppEdge("client", "MOTOR", 1000, 100, "ACTUATOR", Tuple.DOWN, AppEdge.ACTUATOR);
-		
-		
+
+
 		final AppLoop loop1 = new AppLoop(new ArrayList<String>(){{add("TEMP");add("client");add("classifier");add("client");add("MOTOR");}});
 		final AppLoop loop2 = new AppLoop(new ArrayList<String>(){{add("classifier");add("tuner");add("classifier");}});
 		List<AppLoop> loops = new ArrayList<AppLoop>(){{add(loop1);add(loop2);}};
-		
+
 		application.setLoops(loops);
-		
+
 		//GeoCoverage geoCoverage = new GeoCoverage(-100, 100, -100, 100);
 		return application;
 	}
