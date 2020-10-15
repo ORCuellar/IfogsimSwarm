@@ -315,7 +315,7 @@ public class ModulePlacementPopularity extends ModulePlacement {
     			Double deviceRate;
     			if ( (deviceRate = deviceRequestRate.get(edgeMapEntry.getKey()))!=null ) {
     				totalUsage += deviceRate * edgeMapEntry.getValue() * edge.getTupleCpuLength();
-//    				System.out.println("Calculating resource usage for device "+dev.getName()+" (deviceRate="+deviceRate+") and edge "+edge.getTupleType()+" (edgeRequestRate="+edgeMapEntry.getValue()+") with a CPU length of the edge of "+edge.getTupleCpuLength());
+    				//System.out.println("Calculating resource usage for device "+dev.getName()+" (deviceRate="+deviceRate+") and edge "+edge.getTupleType()+" (edgeRequestRate="+edgeMapEntry.getValue()+") with a CPU length of the edge of "+edge.getTupleCpuLength());
     			}
     		}
     		
@@ -330,7 +330,7 @@ public class ModulePlacementPopularity extends ModulePlacement {
     	
     		double totalUsage = 0.0;
     		
-//    		System.out.println("***** Calculating resource usage for module "+module);
+    		//System.out.println("***** Calculating resource usage for module "+module);
     		for (AppEdge edge : getApplication().getEdges()) {
     			if (edge.getDestination().equals(module)) {
 
@@ -445,14 +445,14 @@ public class ModulePlacementPopularity extends ModulePlacement {
 	    	HashMap<String,Double> allocModRates = new HashMap<String,Double>(); 
 	    	
 	    	List<String> currentModules = currentModuleMap.get(dev);
-//	    	System.out.println("++calculateModuleRateAllocatedMod for dev "+dev.getName());
+	    	//System.out.println("++calculateModuleRateAllocatedMod for dev "+dev.getName());
 	    	for (String mod : currentModules) {
-//	    		System.out.print(mod+"    ");
+	    		//System.out.print(mod+"    ");
 	    		Double temp = calculateModuleRate(dev,mod);
 	    		allocModRates.put(mod, temp);
 	    	}
-//	    	System.out.println("");
-//	    	System.out.println("++END calculateModuleRateAllocatedMod for dev "+dev.getName());
+	    	//System.out.println("");
+	    	//System.out.println("++END calculateModuleRateAllocatedMod for dev "+dev.getName());
 	    	
 	    	
 	    	return allocModRates;
@@ -519,7 +519,7 @@ public class ModulePlacementPopularity extends ModulePlacement {
     	
     		while (modulesToPlace.size()>0) {
     			
-//    			System.out.println("===================================== "+numOptExecutions);
+    			System.out.println("===================================== "+numOptExecutions);
     			numOptExecutions ++;
     			Pair<FogDevice,String> pair = modulesToPlace.get(0);
     			FogDevice dev = pair.getFirst();
@@ -527,7 +527,7 @@ public class ModulePlacementPopularity extends ModulePlacement {
     			int devMips = dev.getHost().getTotalMips();
     			Double currentMips = currentCpuLoad.get(dev);
     			
-//    			System.out.println("Starting with allocation of module "+modName+" in device "+dev.getName());
+    			System.out.println("Starting with allocation of module "+modName+" in device "+dev.getName());
     			
 
     			
@@ -541,24 +541,24 @@ public class ModulePlacementPopularity extends ModulePlacement {
 
 			if (currentModules.contains(modName)) { //The module is already in the device
 				//TODO Update the usage ?????
-//				System.out.println("Module "+modName+" in device "+dev.getName()+" already allocated, so removed form toAllocate list");
+				System.out.println("Module "+modName+" in device "+dev.getName()+" already allocated, so removed form toAllocate list");
 				modulesToPlace.remove(0);
 			}else {
 				if (dev.getLevel()==0) {
-//					System.out.println("Module "+modName+" in device "+dev.getName()+" allocated because the device is the cloud");
+					System.out.println("Module "+modName+" in device "+dev.getName()+" allocated because the device is the cloud");
 
 					currentModules.add(modName);//the device is the cloud
 					numOfCloudPlacements++;
 					modulesToPlace.remove(0);
 				}else {
 					double requiredResources = calculateResourceUsage(dev,modName);
-//		    			System.out.println("Total dev available CPU MIPS "+devMips);
-//		    			System.out.println("Already allocated   CPU MIPS "+currentMips);
-//		    			System.out.println("Module required     CPU MIPS "+requiredResources);
+		    			System.out.println("Total dev available CPU MIPS "+devMips);
+		    			System.out.println("Already allocated   CPU MIPS "+currentMips);
+		    			System.out.println("Module required     CPU MIPS "+requiredResources);
 
 					
 					if (devMips < requiredResources) {
-//						System.out.println("Module "+modName+" in device "+dev.getName()+" send to father because total resources not enough");
+						System.out.println("Module "+modName+" in device "+dev.getName()+" send to father because total resources not enough");
 //				    		Pair<FogDevice,String> pairFather = new Pair<FogDevice,String>(getFogDeviceById(dev.getParentId()),modName);
 //				    		modulesToPlace.add(pairFather);
 						sendToFather(dev, modName, Double.MAX_VALUE);
@@ -569,11 +569,11 @@ public class ModulePlacementPopularity extends ModulePlacement {
 						double availableMips = devMips - currentMips;
 						
 						if ( availableMips > requiredResources) {
-//							System.out.println("Module "+modName+" in device "+dev.getName()+" allocated because enough resources");
+							System.out.println("Module "+modName+" in device "+dev.getName()+" allocated because enough resources");
 
 							PreAllocate(dev,modName);
 							currentCpuLoad.put(dev, currentMips + requiredResources);
-//							System.out.println("Pre-allocated module "+modName+" in device "+dev.getName());
+							System.out.println("Pre-allocated module "+modName+" in device "+dev.getName());
 							modulesToPlace.remove(0);
 							
 						}else {
@@ -626,7 +626,7 @@ public class ModulePlacementPopularity extends ModulePlacement {
 									Pair<FogDevice,String> pairFather = new Pair<FogDevice,String>(getFogDeviceById(dev.getParentId()),toDeallocMod);
 									atToPendingList(pairFather);
 									currentModuleMap.get(dev).remove(toDeallocMod);
-									System.out.println("Removed from pre-allocated list the module "+toDeallocMod+" in device "+dev.getName());
+									//System.out.println("Removed from pre-allocated list the module "+toDeallocMod+" in device "+dev.getName());
 									numOfMigrations++;
 								}
 								currentMips -= deallocatedResources;  //the deallocated resources are restados.

@@ -88,15 +88,14 @@ public class NAppSock {
 	static int numOfApps = 1;	
 	
 	
-	static Integer numOfNetChildren = 3;
+	static Integer numOfNetChildren = 1;
 	static int numOfUsersPerRouter = 1;
 	static int numOfNetworkLevels = 3;
 
-	static int numOfRepeatedSubApps = 5;
-	static String placementPolicy = "ModulePlacementEdgewards";
+	static int numOfRepeatedSubApps = 1;
+//	static String placementPolicy = "ModulePlacementEdgewards";
 	static int finishTime = 3500;
-// 	static String placementPolicy = "ModulePlacementPopularity";
-	
+ 	static String placementPolicy = "ModulePlacementPopularity";
 	private static boolean CLOUD = false;
 	
 //	static Integer[] subAppsRate={30,10,25,35,20,30,10,25,35,20};
@@ -174,7 +173,7 @@ public class NAppSock {
 							
 							
 							try {
-								Log.disable();
+								Log.enable();
 								int num_user = 1; // number of cloud users
 								Calendar calendar = Calendar.getInstance();
 								boolean trace_flag = false; // mean trace events

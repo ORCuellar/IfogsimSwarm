@@ -88,8 +88,10 @@ public class 	NAppDCNS {
 	static int numOfNetworkLevels = 3;
 
 	static int numOfRepeatedSubApps = 5;
-	static String placementPolicy = "ModulePlacementEdgewards";
+	//static String placementPolicy = "ModulePlacementEdgewards";
 	static int finishTime = 3500;
+	static String placementPolicy = "ModulePlacementPopularity";
+
 
 	static Integer[] subAppsRate={30,10,25,30,20,30,10,25,35,20};
 	static String FileNameResults = "a"+numOfRepeatedSubApps+"l"+numOfNetworkLevels+"u"+numOfUsersPerRouter+"c"+numOfNetChildren;
